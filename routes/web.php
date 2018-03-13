@@ -54,5 +54,8 @@ Route::post('/submitAssignment' , 'HomeController@submitAssignment');
 Route::post('/closeAssignment' , 'HomeController@closeAssignment');
 Route::get('/download/{id1}/{id2}' , 'HomeController@downloadFile');
 
+Route::get('/enrollStudent/{id}', 'HomeController@enrollStudent')->name('enrolledStudent');
+Route::get('/deleteStudent/{courseNumber}/{studentNumber}','HomeController@delStudent')->name('deleteStudent');
+
 Route::get('/ajaxtest' , 'HomeController@getAjax');
 Route::post('/ajaxtest' , 'HomeController@postAjax');

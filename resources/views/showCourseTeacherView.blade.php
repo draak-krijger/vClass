@@ -19,8 +19,13 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-6">
+                    <div class="col-lg-3">
                         <button class="closeButton">Close</button>
+                    </div>
+                    <div class="col-lg-3">
+                        <a href="{{route('enrolledStudent',Request::segment(2))}}">
+                            <button class="btn-default">Enrolled Student</button>
+                        </a>
                     </div>
                     <div class="col-lg-6">
                         <form id="addStudent" enctype="multipart/form-data" method="post" >
@@ -77,9 +82,9 @@
                     <div id="addKey" class="tab-pane fade">
                         <form id="addnewkey" enctype="multipart/form-data" method="post" >
                             {{--{{ csrf_field() }}--}}
-                            <div class="form-group">
-                                <input type="file" class="form-control keyfile" name="keyList">
-                            </div>
+                            Date : <input type="date" class="date" id="keyDate"> <br>
+                            Weight : <input type="number" min="0" class="wgt" id="keyWeight"> <br>
+                            Attendance File : <input type="file" class="keyfile" name="keyList">  <br>
                             <button class="btn btn-default">Add Key</button>
                         </form>
                     </div>
@@ -182,7 +187,37 @@
             e.preventDefault();
             var formData = new FormData(this);
             var value = "{!! Request::segment(2) !!}" ;
+            var kDate = document.getElementById('keyDate').value ;
+            var kweg = document.getElementById('keyWeight').value ;
+            var fle = $(".keyfile").val() ;
             formData.append('courseId',value);
+            formData.append('date', kDate);
+            formData.append('weight', kweg);
+
+            var Fobject = {};
+            formData.forEach(function(value, key){
+                Fobject[key] = value;
+            });
+
+            if(!Fobject.weight)
+            {
+                alert("Weight not added");
+                return ;
+            }
+
+            else if(!Fobject.date)
+            {
+                alert("Date not added");
+                return ;
+            }
+
+            else if(!fle)
+            {
+                alert("Key not added");
+                return ;
+            }
+
+            //alert(formData[weight]);
 
             $.ajax({
                 url: '/addNewKey',
@@ -191,6 +226,8 @@
                 success: function (data) {
                     console.log(data);
                     $(".keyfile").val("");
+                    $(".wgt").val("");
+                    $(".date").val("");
                 },
                 cache: false,
                 contentType: false,

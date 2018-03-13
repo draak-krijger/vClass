@@ -200,6 +200,59 @@ class HomeController extends Controller
 
     // end admin authorized functions
 
+    public function enrollStudent($id) // must be a techer
+    {
+        if(!(Auth::user()->isTeacher))
+            return redirect()->back() ;
+
+        $course = Course::find($id);
+        $studentList = $course->students;
+        $studentName = [] ;
+
+        foreach ($studentList as $student)
+        {
+            $tp = User::find($student);
+            array_push($studentName,$tp->name);
+        }
+
+        return view('enrolledStudentList',compact('studentList','studentName'));
+    }
+
+    public function delStudent($courseNumber,$studentNumber)
+    {
+        $student = User::find($studentNumber);
+        $eCourses = $student->courses ;
+        $UpdatedCourses = [];
+
+        foreach ($eCourses as $course)
+        {
+            if($course['course_id'] == $courseNumber)
+                continue;
+
+            array_push($UpdatedCourses,$course);
+        }
+
+        $student->courses = $UpdatedCourses;
+
+        $Course = Course::find($courseNumber);
+        $eStudents = $Course->students ;
+        $UpdatedStudents = [] ;
+
+        foreach ($eStudents as $cStudent)
+        {
+            if($cStudent == $studentNumber)
+                continue;
+
+            array_push($UpdatedStudents,$cStudent);
+        }
+        $Course->students = $UpdatedStudents ;
+
+        $Course->save();
+        $student->save();
+
+        return redirect()->route('enrolledStudent',$courseNumber) ;
+    }
+
     public function showCourse($courseId) // complete for student and teacher
     {
         try
@@ -672,6 +725,8 @@ class HomeController extends Controller
                 $tp = NULL;
                 $tp['day'] = $day;
                 $tp['keyList'] = $keys;
+                $tp['date'] = $req->date ;
+                $tp['weight'] = $req->weight ;
                 array_unshift($temp, $tp);
 
                 $ncourse->attendance = $temp;
