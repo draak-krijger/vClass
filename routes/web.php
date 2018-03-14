@@ -49,6 +49,8 @@ Route::post('/postAssignment' , 'HomeController@postAssignment');
 Route::post('/postResult' , 'HomeController@postResult');
 Route::post('/addNewKey' , 'HomeController@addNewKey');
 
+Route::get('/generateList/{courseId}', 'HomeController@generateList')->name('generateList') ;
+
 Route::get('/assignment/{id}' , 'HomeController@showAssignment');
 Route::post('/submitAssignment' , 'HomeController@submitAssignment');
 Route::post('/closeAssignment' , 'HomeController@closeAssignment');

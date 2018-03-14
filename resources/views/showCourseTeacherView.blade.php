@@ -45,6 +45,12 @@
 
             @endif
 
+            <div class="row">
+                <a href=" {{ route('generateList',Request::segment(2)) }} ">
+                    <button class="btn-default">Generate Attendance Sheet</button>
+                </a>
+            </div>
+
             <h2>{{$title}}</h2>
             <div class="row">
                 <ul class="nav nav-tabs">

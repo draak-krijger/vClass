@@ -726,7 +726,7 @@ class HomeController extends Controller
                 $tp['day'] = $day;
                 $tp['keyList'] = $keys;
                 $tp['date'] = $req->date ;
-                $tp['weight'] = $req->weight ;
+                $tp['weight'] = (int)$req->weight ;
                 array_unshift($temp, $tp);
 
                 $ncourse->attendance = $temp;
@@ -740,6 +740,46 @@ class HomeController extends Controller
         }
 
         return "add key successfully" ;
+    }
+
+    public  function generateList($courseId)
+    {
+        $course = Course::find($courseId) ;
+        $studentList = $course->students ;
+        $weights = [] ;
+        $dates = [] ;
+
+        foreach ($course->attendance as $day)
+        {
+            array_push($weights,$day['weight']);
+            array_push($dates,$day['date']);
+        }
+
+        $weights = array_reverse($weights);
+        $dates = array_reverse($dates);
+        $totalClass = sizeof($weights);
+        $studentsAtt = [] ;
+
+        foreach ($studentList as $eachS)
+        {
+            $student = User::where('_id',$eachS)->firstOrFail() ;
+
+            foreach ($student->courses as $cur_course)
+            {
+                if($cur_course['course_id'] == $courseId)
+                {
+                    $tarr = $cur_course['attendance'] ;
+                    $allA = array_fill(0,$totalClass,0);
+
+                    foreach ($tarr as $cur_day)
+                        $allA[$cur_day-1] = $weights[$cur_day-1] ;
+
+                    array_push($studentsAtt,$allA);
+                }
+            }
+        }
+
+        return $studentsAtt ;
     }
 
     public function showAssignment($id)
