@@ -748,6 +748,7 @@ class HomeController extends Controller
         $studentList = $course->students ;
         $weights = [] ;
         $dates = [] ;
+        $courseName = $course->title ;
 
         foreach ($course->attendance as $day)
         {
@@ -759,10 +760,13 @@ class HomeController extends Controller
         $dates = array_reverse($dates);
         $totalClass = sizeof($weights);
         $studentsAtt = [] ;
+        $studentReg = [] ;
+        $Acont = [] ;
 
         foreach ($studentList as $eachS)
         {
             $student = User::where('_id',$eachS)->firstOrFail() ;
+            array_push($studentReg,$student->registrationNumber);
 
             foreach ($student->courses as $cur_course)
             {
@@ -770,16 +774,20 @@ class HomeController extends Controller
                 {
                     $tarr = $cur_course['attendance'] ;
                     $allA = array_fill(0,$totalClass,0);
+                    $tcont = 0 ;
 
-                    foreach ($tarr as $cur_day)
-                        $allA[$cur_day-1] = $weights[$cur_day-1] ;
-
+                    foreach ($tarr as $cur_day) {
+                        $allA[$cur_day - 1] = $weights[$cur_day - 1];
+                        $tcont += (int)$weights[$cur_day - 1] ;
+                    }
                     array_push($studentsAtt,$allA);
+                    array_push($Acont,$tcont);
+                    break;
                 }
             }
         }
 
-        return $studentsAtt ;
+        return view('attendanceShow',compact('studentReg','dates','studentsAtt','courseName','Acont')) ;
     }
 
     public function showAssignment($id)
