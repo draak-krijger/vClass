@@ -69,7 +69,7 @@ class HomeController extends Controller
         return view('TeacherList',compact('teachers')) ;
     }
 
-    public function addCourse(Request $req) // must be a admin
+    public function addCourse(Request $req)
     {
         if(!(Auth::user()->isTeacher))
             return redirect()->back();
@@ -91,7 +91,7 @@ class HomeController extends Controller
             $ncourse['attendance'] = [] ;
             $ncourse['posts'] = [] ;
             $ncourse['assignments'] = [] ;
-            $ncourse['isOpen'] = 0 ;
+            $ncourse['isOpen'] = true ;
             $ncourse->save();
 
             $teacher = User::find($ncourse['courseTeacher']) ;
@@ -145,6 +145,7 @@ class HomeController extends Controller
                             $arr = $usr->courses ;
                             $usr->courses = array_prepend($arr,$tcourse);
                             $usr->save();
+                            array_push($student_array,$tp['_id']);
                         }
 
                         catch (\Exception $ex)
@@ -157,13 +158,13 @@ class HomeController extends Controller
 
                             $temp['password'] = $regis ;
 
-                            $data = array("mail" => $mail, "password" => $temp['password']);
+                            // $data = array("mail" => $mail, "password" => $temp['password']);
 
-                            Mail::send('mail', $data, function ($message) use ($regis, $mail) {
-                                $message->to($mail, $regis)
-                                    ->subject('Web Testing Mail');
-                                $message->from('aobro.993@gmail.com', 'Enam Sir');
-                            });
+                            // Mail::send('mail', $data, function ($message) use ($regis, $mail) {
+                            //     $message->to($mail, $regis)
+                            //         ->subject('Web Testing Mail');
+                            //     $message->from('aobro.993@gmail.com', 'Enam Sir');
+                            // });
 
                             $temp['password_confirmation'] = $temp['password'];
                             $temp['course'] = $tcourse;
@@ -388,7 +389,12 @@ class HomeController extends Controller
             array_push($assignments,$temp);
         }
 
-        return view('showCourseTeacherView',compact('posts','assignments','title','isOpen')) ;
+        $posts = array_reverse($posts);
+        $assignments = array_reverse($assignments);
+        $tpost = sizeof($posts);
+        $tas = sizeof($assignments);
+
+        return view('showCourseTeacherView',compact('posts','assignments','title','isOpen','tpost','tas')) ;
     }
 
     public function showCourseStudentView($courseId)
@@ -408,7 +414,12 @@ class HomeController extends Controller
             array_push($assignments,$temp);
         }
 
-        return view('showCourseStudentView',compact('posts','assignments','title','isOpen')) ;
+        $posts = array_reverse($posts);
+        $assignments = array_reverse($assignments);
+        $tpost = sizeof($posts);
+        $tas = sizeof($assignments);
+
+        return view('showCourseStudentView',compact('posts','assignments','title','isOpen','tpost','tas')) ;
     }
 
     public function submitAttendance(Request $req) // complete for student
@@ -650,6 +661,7 @@ class HomeController extends Controller
                             $usr = User::where($tp['_id']);
                             $arr = $usr->courses;
                             $usr->courses = array_prepend($arr, $tcourse);
+                            array_push($student_array,$tp['_id']);
                             $usr->save();
                         }
                     }
@@ -662,15 +674,15 @@ class HomeController extends Controller
                         $temp['isStudent'] = true;
                         $temp['regNum'] = $regis;
 
-                        $temp['password'] = md5(uniqid(rand(), true));
+                        $temp['password'] = $regis;
 
-                        $data = array("mail" => $mail, "password" => $temp['password']);
+                        // $data = array("mail" => $mail, "password" => $temp['password']);
 
-                        Mail::send('mail', $data, function ($message) use ($regis, $mail) {
-                            $message->to($mail, $regis)
-                                ->subject('Web Testing Mail');
-                            $message->from('aobro.993@gmail.com', 'Enam Sir');
-                        });
+                        // Mail::send('mail', $data, function ($message) use ($regis, $mail) {
+                        //     $message->to($mail, $regis)
+                        //         ->subject('Web Testing Mail');
+                        //     $message->from('aobro.993@gmail.com', 'Enam Sir');
+                        // });
 
                         $temp['password_confirmation'] = $temp['password'];
                         $temp['course'] = $tcourse;
@@ -717,7 +729,7 @@ class HomeController extends Controller
         $tpost = NULL ;
         $tpost['title'] = $req->title ;
         $tpost['description'] = $req->description ;
-        array_unshift($posts,$tpost);
+        array_push($posts,$tpost);
 
         $curs->posts = $posts;
         $curs->save();
@@ -745,7 +757,7 @@ class HomeController extends Controller
         $tasign['title'] = $req->title ;
 
         $arr = $curs->assignments ;
-        array_unshift($arr,$tasign);
+        array_push($arr,$tasign);
         $curs->assignments = $arr ;
         $curs->save();
 
