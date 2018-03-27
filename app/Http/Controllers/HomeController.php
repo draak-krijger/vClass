@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Assignment;
+use App\Comment;
 use App\User;
 use App\Course ;
 use Illuminate\Http\Request;
@@ -51,6 +52,21 @@ class HomeController extends Controller
         {
         	return "Bullshit things occur";
         }
+    }
+
+    public function showAllTeacher()
+    {
+        $teachersList = User::where('isTeacher',true)->get();
+        $teachers = [] ;
+
+        foreach($teachersList as $teacher)
+        {
+            $ttch = NULL ;
+            $ttch['name'] = $teacher->name ;
+            $ttch['email'] = $teacher->email ;
+            array_push($teachers,$ttch);
+        }
+        return view('TeacherList',compact('teachers')) ;
     }
 
     public function addCourse(Request $req) // must be a admin
@@ -139,7 +155,7 @@ class HomeController extends Controller
                             $temp['isStudent'] = true;
                             $temp['regNum'] = $regis;
 
-                            $temp['password'] = md5(uniqid(rand(), true));
+                            $temp['password'] = $regis ;
 
                             $data = array("mail" => $mail, "password" => $temp['password']);
 
@@ -199,6 +215,84 @@ class HomeController extends Controller
     }
 
     // end admin authorized functions
+
+    public function getDetails($courseId,$postId)
+    {
+        $cId = $courseId . "_" . $postId ;
+        $type = $postId[0] ;
+        $index = 0 ;
+
+        for($i=1 ; $i<strlen($postId) ; $i++)
+        {
+            if($postId[$i] >= '0' && $postId[$i] <= '9')
+                $index = $index*10 + ($postId[$i] - '0') ;
+
+            else
+                return "Something wrong with ID" ;
+        }
+
+        $course = Course::find($courseId);
+        $comments = [] ;
+
+        $all_comment = Comment::where('cId',$cId)->get() ;
+
+        foreach($all_comment as $SingleComment)
+        {
+            $comment = NULL ;
+            $comment['name'] = $SingleComment['name'] ;
+            $comment['comment'] = $SingleComment['description'] ;
+            array_push($comments,$comment);
+        }
+
+        $comments = array_reverse($comments);
+        $uName = Auth::user()->name ;
+
+        if($type == 'p')
+        {
+            $totalPost =  sizeof($course->posts);
+
+            if($index>=$totalPost)
+                return "Unavailable Data Access Request Denied" ;
+
+            $post = $course->posts[$index] ;
+
+            return view('Details',compact('post','comments', 'uName' )) ;
+        }
+
+        else if($type == 'a')
+        {
+            $totalAssignment = sizeof($course->assignments) ;
+
+            if($index>=$totalAssignment)
+                return "Unavailable Data Access Request Denied" ;
+
+            $assignment = $course->assignments[$index]['id'] ;
+            $assignment = Assignment::find($assignment) ;
+            $post = NULL ;
+
+            $post['title'] = $assignment->title ;
+            $post['description'] = $assignment->description ;
+
+            
+
+            return view('Details',compact('post','comments', 'uName')) ;
+        }
+
+        return "Unavailable Data Access Request Denied" ;
+    }
+
+    public function postComment(Request $req)
+    {
+        $comment = new Comment();
+
+        $comment->cId = $req->cId ;
+        $comment->description = $req->comment ;
+        $comment->name = Auth::user()->name ;
+
+        $comment->save();
+
+        return "Successfully commented !!" ;
+    }
 
     public function enrollStudent($id) // must be a techer
     {
@@ -283,7 +377,6 @@ class HomeController extends Controller
 
         $posts = $course['posts'] ;
         $assignments = [] ;
-        $results = $course['result'] ;
         $title = $course['title'] ;
         $isOpen = $course['isOpen'] ;
 
@@ -295,7 +388,7 @@ class HomeController extends Controller
             array_push($assignments,$temp);
         }
 
-        return view('showCourseTeacherView',compact('posts','assignments','results','title','isOpen')) ;
+        return view('showCourseTeacherView',compact('posts','assignments','title','isOpen')) ;
     }
 
     public function showCourseStudentView($courseId)
@@ -304,7 +397,6 @@ class HomeController extends Controller
 
         $posts = $course['posts'] ;
         $assignments = [] ;
-        $results = $course['result'] ;
         $title = $course['title'] ;
         $isOpen = $course['isOpen'] ;
 
@@ -316,7 +408,7 @@ class HomeController extends Controller
             array_push($assignments,$temp);
         }
 
-        return view('showCourseStudentView',compact('posts','assignments','results','title','isOpen')) ;
+        return view('showCourseStudentView',compact('posts','assignments','title','isOpen')) ;
     }
 
     public function submitAttendance(Request $req) // complete for student
@@ -326,8 +418,6 @@ class HomeController extends Controller
 
         $day = NULL ;
 
-//        try
-//        {
             $tp = Course::select('attendance')->where('_id',$req->courseId)->get();
             $attendances = $tp[0] ;
             $tattendances = [] ;
@@ -420,12 +510,6 @@ class HomeController extends Controller
                     $user->save();
                 }
             }
-//        }
-//
-//        catch (\Exception $ex)
-//        {
-//
-//        }
 
         return "attendance submit process completed successfully" ;
     }
@@ -749,9 +833,11 @@ class HomeController extends Controller
         $weights = [] ;
         $dates = [] ;
         $courseName = $course->title ;
+        $tA = 0 ;
 
         foreach ($course->attendance as $day)
         {
+            $tA += $day['weight'] ;
             array_push($weights,$day['weight']);
             array_push($dates,$day['date']);
         }
@@ -787,7 +873,7 @@ class HomeController extends Controller
             }
         }
 
-        return view('attendanceShow',compact('studentReg','dates','studentsAtt','courseName','Acont')) ;
+        return view('attendanceShow',compact('studentReg','dates','studentsAtt','courseName','Acont','tA')) ;
     }
 
     public function showAssignment($id)
@@ -822,12 +908,6 @@ class HomeController extends Controller
     {
         if(!(Auth::user()->isStudent))
             return redirect()->back() ;
-//        $tp = 0 ;
-
-//        if($req->hasFile('assignment'))
-//            $tp = 1 ;
-//
-//        //$tmp = Assignment::find($req->assignmentId);
         try
         {
             $path = public_path() . '/assignments/' . $req->assignmentId;
@@ -897,9 +977,6 @@ class HomeController extends Controller
     public function postAjax(Request $req)
     {
         $tp = $req ;
-
-//        if($req->hasFile('studentList'))
-//            $tp = 1 ;
 
         return $tp ;
 

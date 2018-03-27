@@ -5,17 +5,19 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>Add Teacher</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
-
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
         <!-- Styles -->
         <style>
             html, body {
                 background-color: #fff;
-                color: #636b6f;
-                font-family: 'Raleway', sans-serif;
+                color: #6D3529;
+                font-family:  sans-serif;
                 font-weight: 100;
                 height: 100vh;
                 margin: 0;
@@ -41,6 +43,12 @@
                 top: 18px;
             }
 
+            .top-left {
+                position: absolute;
+                left: 10px;
+                top: 18px;
+            }
+
             .content {
                 text-align: center;
             }
@@ -49,8 +57,17 @@
                 font-size: 84px;
             }
 
+            .header{
+                font-size: 50px ;
+                text-align: center;
+            }
+
+            table, th, td{
+                color: #070403 ;
+            }
+
             .links > a {
-                color: #636b6f;
+                color: #FD8D74 ;
                 padding: 0 25px;
                 font-size: 15px;
                 font-weight: 600;
@@ -66,6 +83,9 @@
     </head>
     <body>
         <div class="flex-center position-ref full-height">
+            <div class="top-left links">
+            <a href="{{ route('welcome') }}">Virtual Class</a>
+            </div>
             @if (Route::has('login'))
                 <div class="top-right links">
                     @auth
@@ -84,15 +104,25 @@
                     @endauth
                 </div>
             @endif
-
-            <div class="content">
-                <div class="title m-b-md">
-                    Virtual Classroom
-                </div>
-
-                <div class="links">
-                    <a>An Easy Way Connecting With Your Instructor</a>
-                </div>
+            
+            <div class="container">
+                <h5 class="header"> Teacher List </h5>
+                <table class="table" border="1">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($teachers as $teacher)
+                            <tr>
+                                <td>{{ $teacher['name'] }}</td>
+                                <td>{{ $teacher['email'] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </body>

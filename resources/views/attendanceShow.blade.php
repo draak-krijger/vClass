@@ -24,7 +24,7 @@
                 @endfor
                 <th>
                     Total <br>
-                    {{ sizeof($dates) }}
+                    {{ $tA }}
                 </th>
             </tr>
             </thead>

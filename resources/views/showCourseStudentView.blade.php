@@ -28,7 +28,6 @@
     <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#home">Posts</a></li>
         <li><a data-toggle="tab" href="#menu1">Assignments</a></li>
-        <li><a data-toggle="tab" href="#menu2">Results</a></li>
         <li><a data-toggle="tab" href="#menu3">Submit Attendance</a></li>
     </ul>
 
@@ -58,74 +57,28 @@
 
             {{--</div>--}}
             {{--</div>--}}
-            <?php $i = 1; ?>
+            <?php $i = 0; ?>
             @foreach($posts as $post)
                 <div class="row">
-                    <a data-toggle="modal" data-target="#myModal{{$i}}">{{ $post['title'] }}</a>
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="myModal{{ $i++ }}" role="dialog">
-                        <div class="modal-dialog">
-
-                            <!-- Modal content-->
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title">{{ $post['title'] }}</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <p>{{ $post['description'] }}</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
+                    <a href="{{ route('getDetails', [Request::segment(2), "p".$i++ ]) }}">{{ $post['title'] }}</a>
                 </div>
             @endforeach
 
         </div>
+
+        <?php $i = 0; ?>
         <div id="menu1" class="tab-pane fade">
             <h3>Assignments</h3>
 
             @foreach($assignments as $assignment)
                 <div class="row">
-                    <a href="{{ url('/assignment/'.$assignment['id']) }}">{{ $assignment['title'] }}</a>
+                    <a href="{{ route('getDetails', [Request::segment(2), "a".$i++ ]) }}">{{ $assignment['title'] }}</a>
+                    <a href="{{ url('/assignment/'.$assignment['id']) }}"> <button class="btn-default">Show Submitted</button> </a>
                 </div>
             @endforeach
 
         </div>
-        <div id="menu2" class="tab-pane fade">
-            <h3>Results</h3>
-            @foreach($results as $result)
-                <div class="row">
-                    <a data-toggle="modal" data-target="#myModal{{$i}}">{{ $result['title'] }}</a>
 
-                    <!-- Modal -->
-                    <div class="modal fade" id="myModal{{$i++}}" role="dialog">
-                        <div class="modal-dialog">
-
-                            <!-- Modal content-->
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title">{{ $result['title'] }}</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <p> <a href="{{ $result['link'] }}">Click Here</a> to see/download your result. </p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
         <div id="menu3" class="tab-pane fade">
             @if($isOpen)
                 <form>

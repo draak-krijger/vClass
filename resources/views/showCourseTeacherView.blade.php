@@ -56,7 +56,6 @@
                 <ul class="nav nav-tabs">
                     <li class="active"><a data-toggle="tab" href="#AddPost">Add Post</a></li>
                     <li><a data-toggle="tab" href="#addAssignment">Add Assignments</a></li>
-                    <li><a data-toggle="tab" href="#addResult">Add Result</a></li>
                     <li><a data-toggle="tab" href="#addKey">Add AttendanceKey</a></li>
                 </ul>
 
@@ -77,14 +76,6 @@
                         </form>
                     </div>
 
-                    <div id="addResult" class="tab-pane fade">
-                        <form>
-                            Title : <input type="text" class="resultTitle" name="resultTitle"> <br>
-                            DownLoad Link:  <textarea class="resultLink" name="resultLink"></textarea> <br>
-                            <button class="resultSubmit btn btn-default">Submit</button>
-                        </form>
-                    </div>
-
                     <div id="addKey" class="tab-pane fade">
                         <form id="addnewkey" enctype="multipart/form-data" method="post" >
                             {{--{{ csrf_field() }}--}}
@@ -101,10 +92,9 @@
                 <ul class="nav nav-tabs">
                     <li class="active"><a data-toggle="tab" href="#home">Posts</a></li>
                     <li><a data-toggle="tab" href="#menu1">Assignments</a></li>
-                    <li><a data-toggle="tab" href="#menu2">Results</a></li>
                 </ul>
 
-                 <?php $i = 1; ?>
+                 <?php $i = 0; ?>
 
                 <div class="tab-content">
                     <div id="home" class="tab-pane fade in active">
@@ -112,28 +102,7 @@
 
                         @foreach($posts as $post)
                             <div class="row">
-                                <a data-toggle="modal" data-target="#myModal{{$i}}">{{ $post['title'] }}</a>
-
-                                <!-- Modal -->
-                                <div class="modal fade" id="myModal{{$i++}}" role="dialog">
-                                    <div class="modal-dialog">
-
-                                        <!-- Modal content-->
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                                <h4 class="modal-title">{{ $post['title'] }}</h4>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>{{ $post['description'] }}</p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
+                                <a href="{{ route('getDetails', [Request::segment(2), "p".$i++ ]) }}">{{ $post['title'] }}</a>
                             </div>
                         @endforeach
                     </div>
@@ -141,41 +110,15 @@
                     <div id="menu1" class="tab-pane fade">
                         <h3>Assignments</h3>
 
+                        <?php $i = 0; ?>
+
                         @foreach($assignments as $assignment)
                             <div class="row">
-                                <a href="{{ url('/assignment/'.$assignment['id']) }}">{{ $assignment['title'] }}</a>
+                                <a href="{{ route('getDetails', [Request::segment(2), "a".$i++ ]) }}">{{ $assignment['title'] }}</a>
+                                <a href="{{ url('/assignment/'.$assignment['id']) }}"> <button class="btn-default">Show Submitted</button> </a>
                             </div>
                         @endforeach
 
-                    </div>
-                    <div id="menu2" class="tab-pane fade">
-                        <h3>Results</h3>
-                        @foreach($results as $result)
-                            <div class="row">
-                                <a data-toggle="modal" data-target="#myModal{{$i}}">{{ $result['title'] }}</a>
-
-                                <!-- Modal -->
-                                <div class="modal fade" id="myModal{{$i++}}" role="dialog">
-                                    <div class="modal-dialog">
-
-                                        <!-- Modal content-->
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                                <h4 class="modal-title">{{ $result['title'] }}</h4>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p> <a href="{{ $result['link'] }}">Click Here</a> to see/download your result. </p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
                     </div>
                 </div>
             </div>
@@ -307,24 +250,6 @@
                     console.log(data);
                     $(".assignmentTitle").val("");
                     $(".assignmentDescription").val("");
-                }
-            });
-        });
-
-        $(".resultSubmit").on('click',function (e) {
-            e.preventDefault();
-            var courseId = "{!! Request::segment(2) !!}" ;
-            var title = $("[name=resultTitle]").val();
-            var link = $("[name=resultLink]").val();
-
-            $.ajax({
-                type:'POST' ,
-                url: '/postResult',
-                data: {courseId:courseId,title:title,link:link},
-                success:function (data) {
-                    console.log(data);
-                    $(".resultTitle").val("");
-                    $(".resultLink").val("");
                 }
             });
         });

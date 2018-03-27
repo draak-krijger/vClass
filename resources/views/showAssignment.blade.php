@@ -24,7 +24,7 @@
                     <table class="table">
                         <thead>
                         <tr>
-                            <th>Running Course</th>
+                            <th>Registration Number</th>
                         </tr>
                         </thead>
                         <tbody>

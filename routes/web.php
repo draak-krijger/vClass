@@ -31,8 +31,9 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 // routes start 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome')  ;
 
+Route::get('/allteacher','HomeController@showAllTeacher')->name('showTeacherList');
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/addTeacher', 'HomeController@TeacherAddPage')->name('TeacherAdd');
 Route::post('/addTeacher', 'HomeController@TeacherAdd')->name('postTeacherAdd');
@@ -46,7 +47,7 @@ Route::post('/addNewStudent' , 'HomeController@AddNewStudent');
 Route::post('/closeCourse' , 'HomeController@CourseClose');
 Route::post('/postInfo' , 'HomeController@postInfo');
 Route::post('/postAssignment' , 'HomeController@postAssignment');
-Route::post('/postResult' , 'HomeController@postResult');
+//Route::post('/postResult' , 'HomeController@postResult');
 Route::post('/addNewKey' , 'HomeController@addNewKey');
 
 Route::get('/generateList/{courseId}', 'HomeController@generateList')->name('generateList') ;
@@ -58,6 +59,9 @@ Route::get('/download/{id1}/{id2}' , 'HomeController@downloadFile');
 
 Route::get('/enrollStudent/{id}', 'HomeController@enrollStudent')->name('enrolledStudent');
 Route::get('/deleteStudent/{courseNumber}/{studentNumber}','HomeController@delStudent')->name('deleteStudent');
+
+Route::get('/details/{courseId}/{postId}','HomeController@getDetails')->name('getDetails');
+Route::post('/postcomment','HomeController@postComment')->name('postComment');
 
 Route::get('/ajaxtest' , 'HomeController@getAjax');
 Route::post('/ajaxtest' , 'HomeController@postAjax');
