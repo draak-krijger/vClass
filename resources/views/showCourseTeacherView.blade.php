@@ -117,7 +117,7 @@
                         @if($isOpen)
                             <button class="closeButton btn btn-danger">Close</button>
                         @else
-                            <button class="closeButton btn btn-info">Closed</button>
+                            <button class="btn btn-info">Closed</button>
                         @endif
                     </div>
                     <div class="col-lg-4">

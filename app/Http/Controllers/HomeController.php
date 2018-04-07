@@ -27,12 +27,11 @@ class HomeController extends Controller
     }
 
     /**
-     * Show the application dashboard.
+     * Show user home
+     * dependend on AdminHome, TeacherHome, StudentHome 
      *
-     * @return \Illuminate\Http\Response
+     * @return based on user home view
      */
-
-    // Admin authorized url
 
     public function index()
     {
@@ -54,6 +53,12 @@ class HomeController extends Controller
         }
     }
 
+    /**
+     * Show TeacherList
+     * dependend on User Table
+     * @return teacherlist 
+     */
+
     public function showAllTeacher()
     {
         $teachersList = User::where('isTeacher',true)->get();
@@ -68,6 +73,12 @@ class HomeController extends Controller
         }
         return view('TeacherList',compact('teachers')) ;
     }
+
+    /**
+     * Create a new course
+     * receive course information as a request
+     * add course to user course list
+     */
 
     public function addCourse(Request $req)
     {
@@ -195,6 +206,10 @@ class HomeController extends Controller
         return redirect('home');
     }
 
+    /**
+     * @return TeacherAdd view
+     */
+
     public function TeacherAddPage() // must be a admin
     {
         if(!(Auth::user()->isAdmin))
@@ -202,6 +217,13 @@ class HomeController extends Controller
 
         return view('TeacherAdd');
     }
+
+    /**
+     * Add new teacher
+     * Receive request with teacher information
+     * create new user as a teacher
+     * @return redirect to home
+     */
 
     public function TeacherAdd(Request $req) // must be a admin
     {
@@ -216,6 +238,11 @@ class HomeController extends Controller
     }
 
     // end admin authorized functions
+
+    /**
+     * receive courseId, postId as parameter
+     * @return post/assignment details 
+     */
 
     public function getDetails($courseId,$postId)
     {
@@ -282,6 +309,11 @@ class HomeController extends Controller
         return "Unavailable Data Access Request Denied" ;
     }
 
+    /**
+     * receive comment request
+     * add comment to specific post/assignment
+     */
+
     public function postComment(Request $req)
     {
         $comment = new Comment();
@@ -294,6 +326,11 @@ class HomeController extends Controller
 
         return "Successfully commented !!" ;
     }
+
+    /**
+     * receive courseId
+     * @return enrolledStudentList
+     */
 
     public function enrollStudent($id) // must be a techer
     {
@@ -312,6 +349,12 @@ class HomeController extends Controller
 
         return view('enrolledStudentList',compact('studentList','studentName'));
     }
+
+    /**
+     * receive courseNumber and studentNumber
+     * delete student from this course
+     * @redirect to enrolledStudent
+     */
 
     public function delStudent($courseNumber,$studentNumber)
     {
@@ -348,6 +391,12 @@ class HomeController extends Controller
         return redirect()->route('enrolledStudent',$courseNumber) ;
     }
 
+    /**
+     * receive courseId
+     * dependend on showCourseTeacherView and showCourseStudentView
+     * @return CourseView
+     */
+
     public function showCourse($courseId) // complete for student and teacher
     {
         try
@@ -371,6 +420,10 @@ class HomeController extends Controller
             return "No Such Course" ;
         }
     }
+
+    /**
+     * @return courseDetails
+     */
 
     public function showCourseTeacherView($courseId)
     {
@@ -397,6 +450,10 @@ class HomeController extends Controller
         return view('showCourseTeacherView',compact('posts','assignments','title','isOpen','tpost','tas')) ;
     }
 
+    /**
+     * @return couseDetails
+     */
+
     public function showCourseStudentView($courseId)
     {
         $course = Course::find($courseId);
@@ -421,6 +478,10 @@ class HomeController extends Controller
 
         return view('showCourseStudentView',compact('posts','assignments','title','isOpen','tpost','tas')) ;
     }
+
+    /**
+     * attendence submit
+     */
 
     public function submitAttendance(Request $req) // complete for student
     {
@@ -525,6 +586,10 @@ class HomeController extends Controller
         return "attendance submit process completed successfully" ;
     }
 
+    /**
+     * use only test purpose
+     */
+
     public function TeacherHomeOther($str)
     {
         try
@@ -545,6 +610,10 @@ class HomeController extends Controller
         }
     }
 
+    /**
+     * @return TeacherHome view
+     */
+
     public function TeacherHome()
     {
         $courses = Auth::user()->courses ;
@@ -559,8 +628,9 @@ class HomeController extends Controller
             $temp = NULL ;
             $temp['id'] = $id ;
             $temp['name'] = Course::find($id)->title ;
+            $crse = Course::find($id);
 
-            if($course['status'] == 0)
+            if($crse['isOpen'] == true)
                 array_push($runningCourses,$temp);
 
             else
@@ -570,6 +640,10 @@ class HomeController extends Controller
 
     	return view('TeacherHomePage',compact('runningCourses','completedCourses')) ;
     }
+
+    /**
+     * @return StudentHome view
+     */
 
     public function StudentHome()
     {
@@ -595,10 +669,19 @@ class HomeController extends Controller
     	return view('StudentHomePage',compact('runningCourses','completedCourses')) ;
     }
 
+    /**
+     * @return AdminHome
+     */
+
     public function AdminHome()
     {
     	return view('AdminHome') ;
     }
+
+    /**
+     * receive file name
+     * add student to specific course
+     */
 
     public function AddNewStudent(Request $data) // must be a teacher
     {
@@ -707,16 +790,25 @@ class HomeController extends Controller
         return ;
     }
 
+    /**
+     * colse specific course
+     */
+
     public function CourseClose(Request $req) // must be a teacher
     {
         if(!(Auth::user()->isTeacher))
             return "not granted" ;
 
-        $temp = Course::find($req);
+        $temp = Course::find($req->courseId);
         $temp['isOpen'] = false ;
         $temp->save();
         return "Successfully closed" ;
     }
+
+    /**
+     * receive post 
+     * store it to database
+     */
 
     public function postInfo(Request $req) // must be a techer
     {
@@ -736,6 +828,11 @@ class HomeController extends Controller
 
         return "post inserted successfully" ;
     }
+
+    /**
+     * receive assignment 
+     * store it to database
+     */
 
     public function postAssignment(Request $req) // must be a teacher
     {
@@ -764,6 +861,11 @@ class HomeController extends Controller
         return "assignment post successfully" ;
     }
 
+    /**
+     * receive result 
+     * store it to database
+     */
+
     public function postResult(Request $req) // must be a teacher
     {
         if(!(Auth::user()->isTeacher))
@@ -782,6 +884,12 @@ class HomeController extends Controller
 
         return "post result successfully." ;
     }
+
+    /**
+     * receive file name and other information 
+     * store it to database
+     * add specific day attendance key
+     */
 
     public function addNewKey(Request $req) // must be a teacher
     {
@@ -838,6 +946,11 @@ class HomeController extends Controller
         return "add key successfully" ;
     }
 
+    /**
+     * generate attendance table for specific course
+     * @return listViewofAttendance
+     */
+
     public  function generateList($courseId)
     {
         $course = Course::find($courseId) ;
@@ -888,6 +1001,11 @@ class HomeController extends Controller
         return view('attendanceShow',compact('studentReg','dates','studentsAtt','courseName','Acont','tA')) ;
     }
 
+    /**
+     * receive attendance list
+     * @return viewWithSubmittedAttendanceStudentList
+     */
+
     public function showAssignment($id)
     {
         $data = Assignment::find($id);
@@ -906,6 +1024,10 @@ class HomeController extends Controller
         return view('showAssignment',compact('title','description','isOpen','isTeacher','submitted_by','path')) ;
     }
 
+    /**
+     * down assignment file
+     */
+
     public function downloadFile($fileName,$name) // must be a teacher
     {
         if(!(Auth::user()->isTeacher))
@@ -915,6 +1037,10 @@ class HomeController extends Controller
         //return $file;
         return response()->download($file);
     }
+
+    /**
+     * assignment submit request
+     */
 
     public function submitAssignment(Request $req) // must be a student
     {
@@ -964,6 +1090,10 @@ class HomeController extends Controller
 
         return "something not right" ;
     }
+
+    /**
+     * close assignmet submit 
+     */
 
     public function closeAssignment(Request $req) // must be a teacher
     {

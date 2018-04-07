@@ -135,7 +135,6 @@
         
                             <?php $i = 1; ?>
                             <div id="menu1" class="tab-pane fade">
-                                <h3>Assignments</h3>
         
                                 @foreach($assignments as $assignment)
                                     <div class="row">
@@ -184,7 +183,6 @@
             data: {key:key,courseId:courseId},
             success:function (data) {
                 console.log(data);
-
                 $("#key").val("");
             }
         });
